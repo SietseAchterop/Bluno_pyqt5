@@ -7,6 +7,8 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12 as QtControls
 
+
+
 Rectangle {
     width: 300
     height: 600
@@ -53,6 +55,10 @@ Rectangle {
 	    color: 'red'
 	    text: device.bluno
 	}
+	QtControls.Button {
+	    text: 'Read'
+	    onClicked: device.dddd()
+	}
     }
 
     Menu {
@@ -66,4 +72,5 @@ Rectangle {
             device.update = "Back from control"
         }
     }
+
 }

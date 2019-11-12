@@ -1,4 +1,4 @@
-import sys
+import sys, time
 
 from PyQt5.QtGui import QGuiApplication
 from PyQt5.QtQml import QQmlApplicationEngine, qmlRegisterType
@@ -457,8 +457,8 @@ class Device(QObject):
     Send command to bluno
     """
     commandChanged = pyqtSignal()
-    characChanged = pyqtSignal() # QtBt.QLowEnergyCharacteristic, str)
- 
+    characChanged = pyqtSignal()
+
     @pyqtSlot(str)
     def setCommand(self, com):
         print(f'setCommand to {com}')
@@ -471,7 +471,7 @@ class Device(QObject):
         print(f'getCommand {self.blcomm}')
         return self.blcomm
 
-    @pyqtSlot() # QtBt.QLowEnergyCharacteristic, str)
+    @pyqtSlot()
     def getCharac(self):
         print(f'getCarac ')
         return self.blresult
@@ -497,10 +497,10 @@ class Device(QObject):
         print(f'the char  {c.getCharacteristic().descriptors()[0].name()}')
         print(f'the char  {c.getCharacteristic().descriptors()[0].value()}')
         """
-        self.currentService.characteristicWritten.connect(self.callbackBluno)
+        self.currentService.characteristicWritten.connect(self.writtenToBluno)
         self.currentService.error.connect(self.errorBluno)
-        self.currentService.characteristicChanged.connect(self.callbackje)
-        self.currentService.characteristicRead.connect(self.callbackje2)        
+        self.currentService.characteristicChanged.connect(self.charChanged)
+        self.currentService.characteristicRead.connect(self.charRead)        
 
         # Bluno does not have a ClientCharacteristicConfiguration voor deze service!
         #    notification is on per default, but there are none!
@@ -509,20 +509,28 @@ class Device(QObject):
         c = self.currentCharacteristic.getCharacteristic()
         self.currentService.writeCharacteristic(c, charinfo.encode(), QtBt.QLowEnergyService.WriteMode.WriteWithResponse)
         # hier doen?
-        self.currentService.readCharacteristic(c)
+        # self.currentService.readCharacteristic(c)
 
+    @pyqtSlot()
+    def dddd(self):
+        print('dddd called')
+        c = self.currentCharacteristic.getCharacteristic()
+        self.currentService.readCharacteristic(c)
+        return 'dddd'
+
+        
     # callback from bluno
     @pyqtSlot(QtBt.QLowEnergyCharacteristic, QByteArray)
-    def callbackBluno(self, c, result):
+    def writtenToBluno(self, c, result):
         print(f'Written callback {c.uuid()}   {result}')
 
 
     @pyqtSlot(QtBt.QLowEnergyCharacteristic, QByteArray)
-    def callbackje(self, c, result):
+    def charChanged(self, c, result):
         print(f'Changed callback {c}   {result}')
 
     @pyqtSlot(QtBt.QLowEnergyCharacteristic, QByteArray)
-    def callbackje2(self, c, result):
+    def charRead(self, c, result):
         print(f'Read callback {c}   {result}')
         self.blresult = result
         self.characChanged.emit()
@@ -543,7 +551,6 @@ def startit():
     engine = QQmlApplicationEngine()
     # Register Device class with QML
     qmlRegisterType(Device, 'Bluno', 1, 0, 'Device')
-    qmlRegisterType(CharacteristicInfo, 'Bluno', 1, 0, 'CharacteristicInfo')
 
     # Load the qml file into the engine
     engine.load("assets/main.qml")
