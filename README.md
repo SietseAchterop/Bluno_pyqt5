@@ -1,2 +1,7 @@
 # Bluno_pyqt5
-App to talk to the Bluno (m0) boards
+
+Communicate with the bluno device.
+
+Derived from the PyQt5 port of the lowenergyscanner from qt5/qtconnectivity
+
+Not working yet
